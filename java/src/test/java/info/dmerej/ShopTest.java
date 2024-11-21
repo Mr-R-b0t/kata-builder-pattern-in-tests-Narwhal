@@ -13,12 +13,12 @@ public class ShopTest {
         private int age = 25;
         private boolean verified = false;
         private Address address = new Address(
-                "33 quai d'Orsay",
-                "",
-                "Paris",
-                "75007",
-                "France"
-        );;
+                "51 Franklin Street",
+                "Fifth Floor",
+                "Boston",
+                "02110",
+                "USA"
+        );
 
         public UserBuilder() {
         }
@@ -33,13 +33,13 @@ public class ShopTest {
             return this;
         }
 
-        public UserBuilder american() {
+        public UserBuilder foreigner() {
             this.address = new Address(
-                    "51 Franklin Street",
-                    "Fifth Floor",
-                    "Boston",
-                    "02110",
-                    "USA"
+                    "33 quai d'Orsay",
+                    "",
+                    "Paris",
+                    "75007",
+                    "France"
             );
             return this;
         }
@@ -54,8 +54,7 @@ public class ShopTest {
 
     @Test
     public void happy_path() {
-        User user = userBuilder.american().verified()
-                                .build();
+        User user = userBuilder.verified().build();
 
         assertTrue(Shop.canOrder(user));
         assertFalse(Shop.mustPayForeignFee(user));
@@ -86,7 +85,7 @@ public class ShopTest {
 
     @Test
     public void americans_dont_pay_foreign_fee() {
-        final User user = userBuilder.american().build();
+        final User user = userBuilder.build();
         assertFalse(Shop.mustPayForeignFee(user));
     }
 
@@ -94,8 +93,7 @@ public class ShopTest {
     @Test
     public void foreigners_must_pay_foreign_fee() {
 
-        User user = userBuilder.verified()
-                               .build();
+        User user = userBuilder.foreigner().build();
 
         assertTrue(Shop.mustPayForeignFee(user));
     }
