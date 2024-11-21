@@ -41,10 +41,23 @@ public class ShopTest {
 
     @Test
     public void must_be_verified_to_order_from_shop() {
-        final User user = new User("Bob", "bob@domain.tld", 16, false, fsfAddress);
+        final User user = new User("Bob", "bob@domain.tld", 25, false, fsfAddress);
 
         assertFalse(Shop.canOrder(user));
     }
+
+    @Test
+    public void must_be_verified_and_not_minor_to_order_from_shop() {
+        final User user = new User("Bob", "bob@domain.tld", 16, false, fsfAddress);
+        assertFalse(Shop.canOrder(user));
+    }
+
+    @Test
+    public void americans_dont_pay_foreign_fee() {
+        final User user = new User("Bob", "bob@domain.tld", 25, true, fsfAddress);
+        assertFalse(Shop.mustPayForeignFee(user));
+    }
+
 
     @Test
     public void foreigners_must_pay_foreign_fee() {
