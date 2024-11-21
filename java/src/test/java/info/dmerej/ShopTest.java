@@ -7,44 +7,40 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ShopTest {
 
-    private final Address fsfAddress = new Address(
-        "51 Franklin Street",
-        "Fifth Floor",
-        "Boston",
-        "02110",
-        "USA"
-    );
-
-    private final Address parisAddress = new Address(
-        "33 quai d'Orsay",
-        "",
-        "Paris",
-        "75007",
-        "France"
-    );
-
     public static class UserBuilder {
-        private String name = "Pablo";
-        private String email = "pablo.escobar@cartel.com";
-        private int age = 0;
-        private boolean verified = true;
-        private Address address = null;
+        private final static String name = "Pablo";
+        private final static String email = "pablo.escobar@cartel.com";
+        private int age = 25;
+        private boolean verified = false;
+        private Address address = new Address(
+                "33 quai d'Orsay",
+                "",
+                "Paris",
+                "75007",
+                "France"
+        );;
 
         public UserBuilder() {
         }
 
-        public UserBuilder withAge(int age) {
-            this.age = age;
+        public UserBuilder minor() {
+            this.age = 16;
             return this;
         }
 
-        public UserBuilder withVerified(boolean verified) {
-            this.verified = verified;
+        public UserBuilder verified() {
+            this.verified = true;
             return this;
         }
 
-        public UserBuilder withAddress(Address address) {
-            this.address = address;
+        public UserBuilder american() {
+            this.address = new Address(
+                    "51 Franklin Street",
+                    "Fifth Floor",
+                    "Boston",
+                    "02110",
+                    "USA"
+            );
             return this;
         }
 
@@ -53,12 +49,13 @@ public class ShopTest {
         }
     }
 
-    private UserBuilder userBuilder = new UserBuilder();
+    private final UserBuilder userBuilder = new UserBuilder();
 
 
     @Test
     public void happy_path() {
-        User user = userBuilder.withAddress(    )
+        User user = userBuilder.american().verified()
+                                .build();
 
         assertTrue(Shop.canOrder(user));
         assertFalse(Shop.mustPayForeignFee(user));
@@ -67,14 +64,14 @@ public class ShopTest {
     @Test
     public void minors_cannot_order_from_shop() {
 
-        final User user =
+        User user = userBuilder.minor().build();
 
         assertFalse(Shop.canOrder(user));
     }
 
     @Test
     public void must_be_verified_to_order_from_shop() {
-        final User user = new User("Bob", "bob@domain.tld", 25, false, fsfAddress);
+        User user = userBuilder.build();
 
         assertFalse(Shop.canOrder(user));
     }
@@ -82,21 +79,23 @@ public class ShopTest {
     @Test
     public void must_be_verified_and_not_minor_to_order_from_shop() {
 
+        User user = userBuilder.verified().build();
 
-
-        assertFalse(Shop.canOrder(user));
+        assertTrue(Shop.canOrder(user));
     }
 
     @Test
     public void americans_dont_pay_foreign_fee() {
-        final User user = new User("Bob", "bob@domain.tld", 25, true, fsfAddress);
+        final User user = userBuilder.american().build();
         assertFalse(Shop.mustPayForeignFee(user));
     }
 
 
     @Test
     public void foreigners_must_pay_foreign_fee() {
-        final User user = new User("Bob", "bob@domain.tld", 25, false, parisAddress);
+
+        User user = userBuilder.verified()
+                               .build();
 
         assertTrue(Shop.mustPayForeignFee(user));
     }
